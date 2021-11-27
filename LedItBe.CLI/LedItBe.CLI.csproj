@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+	<ImplicitUsings>disable</ImplicitUsings>
+	<Nullable>disable</Nullable>
+	<Copyright>©2021 by kipy</Copyright>
+	<AssemblyVersion>0.0.1</AssemblyVersion>
+	<FileVersion>0.0.1</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LedItBe.Core\LedItBe.Core.csproj" />
+  </ItemGroup>
+
+</Project>

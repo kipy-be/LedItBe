@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Copyright>©2021 by kipy</Copyright>
+    <AssemblyVersion>0.0.1</AssemblyVersion>
+    <FileVersion>0.0.1</FileVersion>
+  </PropertyGroup>
+
+</Project>
