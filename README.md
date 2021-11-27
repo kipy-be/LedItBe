@@ -1,7 +1,7 @@
 # LedItBe
 
-LedItBe is a lib to control Twinkly LED Strings
-This lib is not intented to be a full product, but a personnal project to make my christmas tree fancy and cool
+LedItBe is a dotnet core C# lib to control Twinkly LED Strings.  
+This lib is not intented to be a full product, but a personnal project to make my home christmas tree fancy and cool.
 
 ## References
 
