@@ -1,4 +1,5 @@
 ﻿using LedItBe.Core.Devices;
+using LedItBe.Core.IO.Json;
 using System;
 using System.Threading;
 
@@ -23,6 +24,8 @@ namespace LedItBe.CLI
         private static void DeviceExplorer_OnDeviceDetected(object sender, DeviceDetectedEventArgs e)
         {
             Console.WriteLine("Detected device '{0}' ({1})", e.Device.Name, e.Device.Ip);
+            Console.WriteLine("Infos :");
+            Console.WriteLine(JsonUtils.ToReadableJson(e.Device.Infos));
         }
 
         private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)

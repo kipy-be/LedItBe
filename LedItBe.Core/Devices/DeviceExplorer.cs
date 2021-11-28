@@ -109,7 +109,7 @@ namespace LedItBe.Core.Devices
             _udpClients.Add(udpClient);
         }
 
-        private static void DataReceived(IAsyncResult ar)
+        private async static void DataReceived(IAsyncResult ar)
         {
             if (_isScanning == false)
             {
@@ -129,7 +129,11 @@ namespace LedItBe.Core.Devices
                 if (!_detectedDevices.ContainsKey(device.Ip.ToString()))
                 {
                     _detectedDevices.TryAdd(device.Ip.ToString(), device);
-                    RaiseOnDeviceDetectedEvent(device);
+                    
+                    if (await device.GetInfos())
+                    {
+                        RaiseOnDeviceDetectedEvent(device);
+                    }
                 }
 
                 if (_stopAtFirst)
