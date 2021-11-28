@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace LedItBe.Core.IO.Json
 {
-    internal static class JsonUtils
+    public static class JsonUtils
     {
         private static readonly JsonSerializerOptions _jsonSettings = new JsonSerializerOptions
         {
