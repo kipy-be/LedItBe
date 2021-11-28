@@ -12,7 +12,8 @@ namespace LedItBe.Core.Devices
 {
     public static class DeviceExplorer
     {
-        static byte[] DISCOVER_PAYLOAD = new byte[9]
+        private const ushort PORT = 5555;
+        private static byte[] DISCOVER_PAYLOAD = new byte[9]
         {
             0x01, 0x64, 0x69, 0x73, 0x63, 0x6F, 0x76, 0x65, 0x72
         };
@@ -97,8 +98,8 @@ namespace LedItBe.Core.Devices
         private static void DiscoverNetwork(IPAddress nicBroadcast)
         {
             var udpClient = new UdpClient();
-            var inEp = new IPEndPoint(IPAddress.Any, 5555);
-            var broadcastEp = new IPEndPoint(nicBroadcast, 5555);
+            var inEp = new IPEndPoint(IPAddress.Any, PORT);
+            var broadcastEp = new IPEndPoint(nicBroadcast, PORT);
 
             udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             udpClient.Client.Bind(inEp);

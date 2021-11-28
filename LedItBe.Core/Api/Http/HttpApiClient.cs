@@ -5,20 +5,19 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace LedItBe.Core.Api.Base
+namespace LedItBe.Core.Api.Http
 {
-    public abstract class ApiService
+    public abstract class HttpApiClient
     {
         private static HttpClient _httpClient;
         private static string _sessionToken;
-        private static ApiConfig _apiConfig;
+        private static string _uri;
 
-        static ApiService()
+        static HttpApiClient()
         {
             _httpClient = new HttpClient(new HttpClientHandler()
             {
@@ -26,9 +25,9 @@ namespace LedItBe.Core.Api.Base
             });
         }
 
-        public ApiService(ApiConfig apiConfig)
+        public HttpApiClient(string uri)
         {
-            _apiConfig = apiConfig;
+            _uri = uri;
         }
 
         public static void SetSessionInfo(string token)
@@ -36,7 +35,7 @@ namespace LedItBe.Core.Api.Base
             _sessionToken = token;
         }
 
-        private ApiResponse<T> MakeJsonRequest<T>(string url, HttpMethod method, object data = null)
+        private HttpApiResponse<T> MakeJsonRequest<T>(string url, HttpMethod method, object data = null)
         {
             using (var request = new HttpRequestMessage(method, url))
             {
@@ -52,7 +51,7 @@ namespace LedItBe.Core.Api.Base
             }
         }
 
-        private ApiResponse<T> MakeRequest<T>(string url, HttpMethod method, Dictionary<string, object> data = null)
+        private HttpApiResponse<T> MakeRequest<T>(string url, HttpMethod method, Dictionary<string, object> data = null)
         {
             using (var request = new HttpRequestMessage(method, url))
             {
@@ -68,7 +67,7 @@ namespace LedItBe.Core.Api.Base
             }
         }
 
-        private ApiResponse<T> MakeRequest<T>(HttpRequestMessage request)
+        private HttpApiResponse<T> MakeRequest<T>(HttpRequestMessage request)
         {
             HttpResponseMessage response = null;
 
@@ -78,7 +77,7 @@ namespace LedItBe.Core.Api.Base
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return ApiResponse<T>.CreateError(response?.StatusCode ?? HttpStatusCode.InternalServerError);
+                    return HttpApiResponse<T>.CreateError(response?.StatusCode ?? HttpStatusCode.InternalServerError);
                 }
 
                 using (var reader = new StreamReader(response.Content.ReadAsStreamAsync().Result))
@@ -88,10 +87,10 @@ namespace LedItBe.Core.Api.Base
 
                     if (string.IsNullOrWhiteSpace(json) || !TryParse<T>(json, out token))
                     {
-                        return ApiResponse<T>.CreateError(response?.StatusCode ?? HttpStatusCode.NoContent);
+                        return HttpApiResponse<T>.CreateError(response?.StatusCode ?? HttpStatusCode.NoContent);
                     }
 
-                    return ApiResponse<T>.Create(response?.StatusCode ?? HttpStatusCode.OK, token);
+                    return HttpApiResponse<T>.Create(response?.StatusCode ?? HttpStatusCode.OK, token);
                 }
             }
             catch (AggregateException aex)
@@ -99,18 +98,18 @@ namespace LedItBe.Core.Api.Base
                 var wex = GetWebException(aex);
 
                 return (wex != null)
-                    ? ApiResponse<T>.CreateError(HttpStatusCode.InternalServerError, wex.Status.ToString(), wex)
-                    : ApiResponse<T>.CreateError(HttpStatusCode.InternalServerError, aex);
+                    ? HttpApiResponse<T>.CreateError(HttpStatusCode.InternalServerError, wex.Status.ToString(), wex)
+                    : HttpApiResponse<T>.CreateError(HttpStatusCode.InternalServerError, aex);
             }
             catch (Exception ex)
             {
                 return (response != null)
-                    ? ApiResponse<T>.CreateError(response.StatusCode, ex)
-                    : ApiResponse<T>.CreateError(HttpStatusCode.InternalServerError, ex);
+                    ? HttpApiResponse<T>.CreateError(response.StatusCode, ex)
+                    : HttpApiResponse<T>.CreateError(HttpStatusCode.InternalServerError, ex);
             }
         }
 
-        private ApiResponse MakeJsonRequest(string url, HttpMethod method, object data = null)
+        private HttpApiResponse MakeJsonRequest(string url, HttpMethod method, object data = null)
         {
             using (var request = new HttpRequestMessage(method, url))
             {
@@ -126,7 +125,7 @@ namespace LedItBe.Core.Api.Base
             }
         }
 
-        private ApiResponse MakeRequest(string url, HttpMethod method, Dictionary<string, object> data = null)
+        private HttpApiResponse MakeRequest(string url, HttpMethod method, Dictionary<string, object> data = null)
         {
             using (var request = new HttpRequestMessage(method, url))
             {
@@ -142,7 +141,7 @@ namespace LedItBe.Core.Api.Base
             }
         }
 
-        private ApiResponse MakeRequest(HttpRequestMessage request)
+        private HttpApiResponse MakeRequest(HttpRequestMessage request)
         {
             HttpResponseMessage response = null;
 
@@ -152,25 +151,25 @@ namespace LedItBe.Core.Api.Base
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return ApiResponse.CreateError(response?.StatusCode ?? HttpStatusCode.InternalServerError);
+                    return HttpApiResponse.CreateError(response?.StatusCode ?? HttpStatusCode.InternalServerError);
                 }
 
                 var stream = response.Content.ReadAsStreamAsync().Result;
 
-                return ApiResponse.Create(response?.StatusCode ?? HttpStatusCode.OK, stream);
+                return HttpApiResponse.Create(response?.StatusCode ?? HttpStatusCode.OK, stream);
             }
             catch (AggregateException aex)
             {
                 var wex = GetWebException(aex);
                 return (wex != null)
-                    ? ApiResponse.CreateError(HttpStatusCode.InternalServerError, wex.Status.ToString(), wex)
-                    : ApiResponse.CreateError(HttpStatusCode.InternalServerError, aex);
+                    ? HttpApiResponse.CreateError(HttpStatusCode.InternalServerError, wex.Status.ToString(), wex)
+                    : HttpApiResponse.CreateError(HttpStatusCode.InternalServerError, aex);
             }
             catch (Exception ex)
             {
                 return (response != null)
-                    ? ApiResponse.CreateError(response.StatusCode, ex)
-                    : ApiResponse.CreateError(HttpStatusCode.InternalServerError, ex);
+                    ? HttpApiResponse.CreateError(response.StatusCode, ex)
+                    : HttpApiResponse.CreateError(HttpStatusCode.InternalServerError, ex);
             }
         }
 
@@ -204,68 +203,68 @@ namespace LedItBe.Core.Api.Base
 
             return path != null
                 ? (parameters != null)
-                    ? $"{_apiConfig.Uri}/{service}/{path}?{parameters}"
-                    : $"{_apiConfig.Uri}/{service}/{path}"
+                    ? $"{_uri}/{service}/{path}?{parameters}"
+                    : $"{_uri}/{service}/{path}"
                 : (parameters != null)
-                    ? $"{_apiConfig.Uri}/{service}?{parameters}"
-                    : $"{_apiConfig.Uri}/{service}";
+                    ? $"{_uri}/{service}?{parameters}"
+                    : $"{_uri}/{service}";
         }
 
-        protected Task<ApiResponse<T>> Get<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
+        protected Task<HttpApiResponse<T>> Get<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest<T>(url, HttpMethod.Get));
         }
 
-        protected Task<ApiResponse> Get(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
+        protected Task<HttpApiResponse> Get(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest(url, HttpMethod.Get));
         }
 
-        protected Task<ApiResponse<T>> Post<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, Dictionary<string, object> data = null)
+        protected Task<HttpApiResponse<T>> Post<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, Dictionary<string, object> data = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeRequest<T>(url, HttpMethod.Post, data));
         }
 
-        protected Task<ApiResponse<T>> PostJson<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
+        protected Task<HttpApiResponse<T>> PostJson<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest<T>(url, HttpMethod.Post, data));
         }
 
-        protected Task<ApiResponse> Post(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, Dictionary<string, object> data = null)
+        protected Task<HttpApiResponse> Post(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, Dictionary<string, object> data = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeRequest(url, HttpMethod.Post, data));
         }
 
-        protected Task<ApiResponse> PostJson(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
+        protected Task<HttpApiResponse> PostJson(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest(url, HttpMethod.Post, data));
         }
 
-        protected Task<ApiResponse<T>> PutJson<T>(string service = null, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
+        protected Task<HttpApiResponse<T>> PutJson<T>(string service = null, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest<T>(url, HttpMethod.Put, data));
         }
 
-        protected Task<ApiResponse> PutJson(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
+        protected Task<HttpApiResponse> PutJson(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null, object data = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest(url, HttpMethod.Put, data));
         }
 
-        protected Task<ApiResponse<T>> Delete<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
+        protected Task<HttpApiResponse<T>> Delete<T>(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest<T>(url, HttpMethod.Delete));
         }
 
-        protected Task<ApiResponse> Delete(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
+        protected Task<HttpApiResponse> Delete(string service, object[] queryValues = null, Dictionary<string, object> queryParameters = null)
         {
             var url = FormatUrl(service, queryValues, queryParameters);
             return Task.FromResult(MakeJsonRequest(url, HttpMethod.Delete));

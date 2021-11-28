@@ -1,5 +1,5 @@
-﻿using LedItBe.Core.Api;
-using LedItBe.Core.Api.Base;
+﻿using LedItBe.Core.Api.Http;
+using LedItBe.Core.Api.Udp;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -7,7 +7,8 @@ namespace LedItBe.Core.Devices
 {
     public class Device
     {
-        private DeviceApiService _apiService;
+        private DeviceHttpApiClient _httpApiClient;
+        private DeviceUdpApiClient _udpClient;
 
         public DeviceInfo Infos { get; private set; }
         public IPAddress Ip { get; private set; }
@@ -19,12 +20,13 @@ namespace LedItBe.Core.Devices
             Ip = ip;
             Infos = infos;
 
-            _apiService = new DeviceApiService (new ApiConfig($"http://{ip}/xled/v1"));
+            _httpApiClient = new DeviceHttpApiClient(ip);
+            _udpClient = new DeviceUdpApiClient(ip);
         }
 
         public async Task<bool> GetInfos()
         {
-            var callResult = await _apiService.GetDeviceInfo();
+            var callResult = await _httpApiClient.GetDeviceInfo();
 
             if (callResult.IsSuccess)
             {
