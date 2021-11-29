@@ -2,7 +2,7 @@
 
 namespace LedItBe.Core.Dto
 {
-    internal class DeviceInfoDto
+    internal class DeviceInfoDto : ReponseBaseDto
     {
         [JsonPropertyName("product_name")]
         public string ProductName { get; set; }
@@ -63,8 +63,5 @@ namespace LedItBe.Core.Dto
 
         [JsonPropertyName("copyright")]
         public string Copyright { get; set; }
-
-        [JsonPropertyName("code")]
-        public int Code { get; set; }
     }
 }

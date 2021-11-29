@@ -7,10 +7,13 @@ namespace LedItBe.Core.Api.Http
     internal class DeviceHttpApiClient : HttpApiClient
     {
         public DeviceHttpApiClient(IPAddress ip)
-            : base($"http://{ip.ToString()}/xled/v1")
+            : base($"http://{ip}/xled/v1")
         {}
 
         public Task<HttpApiResponse<DeviceInfoDto>> GetDeviceInfo()
             => Get<DeviceInfoDto> ("gestalt");
+
+        public Task<HttpApiResponse<LoginResponseDto>> Login(LoginRequestDto dto)
+            => PostJson<LoginResponseDto>("login", null, null, dto);
     }
 }

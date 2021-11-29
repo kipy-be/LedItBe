@@ -7,7 +7,8 @@ namespace LedItBe.CLI
 {
     public class Program
     {
-        static AutoResetEvent _waiter = new AutoResetEvent(false);  
+        static AutoResetEvent _waiter = new AutoResetEvent(false);
+        static Device _device;
 
         public static void Main(string[] args)
         {
@@ -23,15 +24,30 @@ namespace LedItBe.CLI
 
         private static void DeviceExplorer_OnDeviceDetected(object sender, DeviceDetectedEventArgs e)
         {
-            Console.WriteLine("Detected device '{0}' ({1})", e.Device.Name, e.Device.Ip);
+            _device = e.Device;
+
+            Console.WriteLine("Detected device '{0}' ({1})", _device.Name, e.Device.Ip);
             Console.WriteLine("Infos :");
-            Console.WriteLine(JsonUtils.ToReadableJson(e.Device.Infos));
+            Console.WriteLine(JsonUtils.ToReadableJson(_device.Infos));
+
+            InitDevice();
         }
 
         private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             e.Cancel = true;
             _waiter.Set();
+        }
+
+        private async static void InitDevice()
+        {
+            if(!await _device.Connect())
+            {
+                Console.WriteLine("could not connect to device");
+                return;
+            }
+
+            Console.WriteLine("Device connected");
         }
     }
 }

@@ -30,7 +30,7 @@ namespace LedItBe.Core.Api.Http
             _uri = uri;
         }
 
-        public static void SetSessionInfo(string token)
+        public void SetSessionInfo(string token)
         {
             _sessionToken = token;
         }
