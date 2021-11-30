@@ -38,6 +38,7 @@ namespace LedItBe.CLI
         {
             e.Cancel = true;
             _waiter.Set();
+            _exitWaiter.Set();
         }
 
         private async static void InitDevice()
