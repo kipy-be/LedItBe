@@ -175,7 +175,7 @@ namespace LedItBe.Core.Devices
                 }
 
                 string name = data.ReadAsciiString(6);
-                var device = new Device(name, ep.Address, null);
+                var device = new Device(name, ep.Address);
 
                 return device;
             }

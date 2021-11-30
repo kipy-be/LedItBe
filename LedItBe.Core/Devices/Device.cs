@@ -2,6 +2,7 @@
 using LedItBe.Core.Api.Udp;
 using LedItBe.Core.Dto;
 using LedItBe.Core.Utils;
+using LedItBe.Core.Utils.Extensions;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -13,17 +14,18 @@ namespace LedItBe.Core.Devices
         private DeviceHttpApiClient _httpApiClient;
         private DeviceUdpApiClient _udpClient;
         private DateTime _sessionExpirationDate;
+        private LedOperationMode? _initialOperationMode = null;
 
         public DeviceInfo Infos { get; private set; }
         public IPAddress Ip { get; private set; }
         public string Name { get; private set; }
+        
         public LedOperationMode LedOperationMode { get; private set; } = LedOperationMode.Unknown;
 
-        public Device (string name, IPAddress ip, DeviceInfo infos)
+        public Device (string name, IPAddress ip)
         {
             Name = name;
             Ip = ip;
-            Infos = infos;
 
             _httpApiClient = new DeviceHttpApiClient(ip);
             _udpClient = new DeviceUdpApiClient(ip);
@@ -72,7 +74,16 @@ namespace LedItBe.Core.Devices
         }
 
         public async Task<bool> TurnOff() => await SetMode(LedOperationMode.Off);
-        public async Task<bool> ToStaticColorMode() => await SetMode(LedOperationMode.Color);
+        public async Task<bool> ToInitialMode() => await SetMode(_initialOperationMode.HasValue ? _initialOperationMode.Value : LedOperationMode.Off);
+        public async Task<bool> ToStaticColorMode(LedColor color = null)
+        {
+            if (color != null)
+            {
+                await SetColor(color);
+            }
+
+            return await SetMode(LedOperationMode.Color);
+        }
 
         private async Task<bool> GetMode()
         {
@@ -84,6 +95,10 @@ namespace LedItBe.Core.Devices
             }
 
             LedOperationMode = LedOperationModes.GetModeFromString(result.Result.Mode);
+            if (_initialOperationMode == null)
+            {
+                _initialOperationMode = LedOperationMode;
+            }
 
             return true;
         }
@@ -92,6 +107,19 @@ namespace LedItBe.Core.Devices
         {
             var dto = new SetLedOperationModeDto { Mode = LedOperationModes.GetStringFromMode(mode) };
             var result = await _httpApiClient.SetLedOperationMode(dto);
+
+            if (!IsResultSuccess(result))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<bool> SetColor(LedColor color)
+        {
+            var dto = new SetLedColorRgbwDto(color);
+            var result = await _httpApiClient.SetLedColorRgb(dto);
 
             if (!IsResultSuccess(result))
             {
