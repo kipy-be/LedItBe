@@ -34,10 +34,15 @@ namespace LedItBe.CLI
             InitDevice();
         }
 
-        private static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        private async static void OnCancelKeyPress(object sender, ConsoleCancelEventArgs e)
         {
             e.Cancel = true;
-            _waiter.Set();
+
+            if (_device != null)
+            {
+                await _device.ToInitialMode();
+            }
+
             _exitWaiter.Set();
         }
 
@@ -52,9 +57,9 @@ namespace LedItBe.CLI
             Console.WriteLine("Device connected");
             Console.WriteLine("Current led operation mode : {0}", _device.LedOperationMode);
 
-            await _device.ToStaticColorMode();
+            await _device.ToStaticColorMode(LedColor.Red);
             _waiter.WaitOne(5000);
-            await _device.TurnOff();
+            await _device.ToInitialMode();
         }
     }
 }
