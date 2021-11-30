@@ -1,23 +1,50 @@
-﻿namespace LedItBe.Core.Devices
+﻿using System;
+
+namespace LedItBe.Core.Common
 {
     public class LedColor
     {
+        private static WhiteColorTemperature _whiteColorTemperature;
+
         public byte R { get; set; }
         public byte G { get; set; }
         public byte B { get; set; }
         public byte W { get; set; }
 
-        private LedColor(byte r, byte g, byte b, byte w = 0x00)
+        public static void SetWhiteColorTemperature(WhiteColorTemperature value)
         {
-            R = r;
-            G = g;
-            B = b;
-            W = w;
+            _whiteColorTemperature = value;
+        }
+
+        private LedColor(byte r, byte g, byte b)
+        {
+            if (_whiteColorTemperature == null)
+            {
+                R = r;
+                G = g;
+                B = b;
+                W = 0;
+            }
+            else
+            {
+                RgbToRgbw(r, g, b);
+            }
+        }
+
+        private void RgbToRgbw(byte r, byte g, byte b)
+        {
+            double wR = r * 255.0 / _whiteColorTemperature.R;
+            double wG = g * 255.0 / _whiteColorTemperature.G;
+            double wB = b * 255.0 / _whiteColorTemperature.B;
+
+            double minW = Math.Min(wR, Math.Min(wG, wB));
+            W = (byte)(minW <= 255 ? minW : 255);
+            R = (byte)(r - minW * _whiteColorTemperature.R / 255);
+            G = (byte)(g - minW * _whiteColorTemperature.G / 255);
+            B = (byte)(b - minW * _whiteColorTemperature.B / 255);
         }
 
         public static LedColor FromRgb(byte r, byte g, byte b) => new LedColor(r, g, b);
-
-        public static LedColor Transparent => new LedColor(0x00, 0x00, 0x00, 0x00);
 
         public static LedColor AliceBlue => new LedColor(0xF0, 0xF8, 0xFF);
         public static LedColor AntiqueWhite => new LedColor(0xFA, 0xEB, 0xD7);

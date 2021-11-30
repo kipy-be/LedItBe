@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace LedItBe.Core.Devices
+namespace LedItBe.Core.Common
 {
     public enum LedOperationMode
     {

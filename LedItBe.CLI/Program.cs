@@ -1,4 +1,5 @@
-﻿using LedItBe.Core.Devices;
+﻿using LedItBe.Core.Common;
+using LedItBe.Core.Devices;
 using LedItBe.Core.IO.Json;
 using System;
 using System.Threading;
@@ -57,8 +58,12 @@ namespace LedItBe.CLI
             Console.WriteLine("Device connected");
             Console.WriteLine("Current led operation mode : {0}", _device.LedOperationMode);
 
-            await _device.ToStaticColorMode(LedColor.Red);
+            LedColor.SetWhiteColorTemperature(WhiteColorTemperature.K4000);
+            await _device.ToStaticColorMode(LedColor.White);
             _waiter.WaitOne(5000);
+            await _device.SetColor(LedColor.Red);
+            _waiter.WaitOne(5000);
+
             await _device.ToInitialMode();
         }
     }

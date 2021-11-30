@@ -1,4 +1,4 @@
-﻿using LedItBe.Core.Devices;
+﻿using LedItBe.Core.Common;
 using System.Text.Json.Serialization;
 
 namespace LedItBe.Core.Dto
