@@ -7,6 +7,7 @@ namespace LedItBe.CLI
 {
     public class Program
     {
+        static AutoResetEvent _exitWaiter = new AutoResetEvent(false);
         static AutoResetEvent _waiter = new AutoResetEvent(false);
         static Device _device;
 
@@ -17,7 +18,7 @@ namespace LedItBe.CLI
             DeviceExplorer.OnDeviceDetected += DeviceExplorer_OnDeviceDetected;
             DeviceExplorer.StartScanForDevices(true);
 
-            _waiter.WaitOne();
+            _exitWaiter.WaitOne();
 
             Console.WriteLine("Bye !");
         }
@@ -48,6 +49,11 @@ namespace LedItBe.CLI
             }
 
             Console.WriteLine("Device connected");
+            Console.WriteLine("Current led operation mode : {0}", _device.LedOperationMode);
+
+            await _device.ToStaticColorMode();
+            _waiter.WaitOne(5000);
+            await _device.TurnOff();
         }
     }
 }

@@ -20,5 +20,11 @@ namespace LedItBe.Core.Api.Http
 
         public Task<HttpApiResponse<ReponseBaseDto>> Verify(LoginVerifyDto dto)
             => PostJson<ReponseBaseDto>("verify", null, null, dto);
+
+        public Task<HttpApiResponse<LedOperationModeDto>> GetLedOperationMode()
+            => Get<LedOperationModeDto>("led/mode");
+
+        public Task<HttpApiResponse<ReponseBaseDto>> SetLedOperationMode(SetLedOperationModeDto dto)
+            => PostJson<ReponseBaseDto>("led/mode", null, null, dto);
     }
 }
