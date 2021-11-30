@@ -14,8 +14,8 @@ namespace LedItBe.Core.Api.Http
     public abstract class HttpApiClient
     {
         private static HttpClient _httpClient;
-        private static string _sessionToken;
-        private static string _uri;
+        private string _sessionToken;
+        private string _uri;
 
         static HttpApiClient()
         {

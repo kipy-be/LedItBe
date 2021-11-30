@@ -12,6 +12,7 @@ namespace LedItBe.Core.Devices
     {
         private DeviceHttpApiClient _httpApiClient;
         private DeviceUdpApiClient _udpClient;
+        private string _sessionToken;
         private DateTime _sessionExpirationDate;
 
         public DeviceInfo Infos { get; private set; }
@@ -43,17 +44,42 @@ namespace LedItBe.Core.Devices
 
         public async Task<bool> Connect()
         {
-            var dto = new LoginRequestDto { Challenge = StringUtils.Base64Encode(StringUtils.GenerateAsciiString(32)) };
-            var callResult = await _httpApiClient.Login(dto);
+            var loginDto = new LoginRequestDto { Challenge = StringUtils.Base64Encode(StringUtils.GenerateAsciiString(32)) };
+            var loginResult = await _httpApiClient.Login(loginDto);
 
-            if (callResult.IsSuccess)
+            if (!loginResult.IsSuccess || loginResult.Result.Code != DeviceHttpApiClient.OK_RESPONSE_CODE)
             {
-                _httpApiClient.SetSessionInfo(callResult.Result.Token);
-                _sessionExpirationDate = DateTime.UtcNow.AddSeconds(callResult.Result.Expiration);
-                return true;
+                return false;
             }
 
-            return false;
+            SetSession(loginResult.Result.Token, loginResult.Result.Expiration);
+
+            var verifyDto = new LoginVerifyDto { ChallengeResponse = loginResult.Result.ChallengeResponse };
+            var verifyResult = await _httpApiClient.Verify(verifyDto);
+
+            if (!verifyResult.IsSuccess || verifyResult.Result.Code != DeviceHttpApiClient.OK_RESPONSE_CODE)
+            {
+                ResetSession();
+                return false;
+            }
+
+            return true;
+        }
+
+        private void SetSession(string token, int expiration)
+        {
+            _sessionToken = token;
+            _sessionExpirationDate = DateTime.UtcNow.AddSeconds(expiration);
+            _httpApiClient.SetSessionInfo(token);
+            _udpClient.SetSessionInfo(token);
+        }
+
+        private void ResetSession()
+        {
+            _sessionToken = null;
+            _sessionExpirationDate = DateTime.MinValue;
+            _httpApiClient.SetSessionInfo(null);
+            _udpClient.SetSessionInfo(null);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace LedItBe.Core.Dto
         [JsonPropertyName("authentication_token_expires_in")]
         public int Expiration { get; set; }
 
-        [JsonPropertyName("challenge_response")]
+        [JsonPropertyName("challenge-response")]
         public string ChallengeResponse { get; set; }
     }
 }
