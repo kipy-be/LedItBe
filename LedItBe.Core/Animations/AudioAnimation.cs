@@ -29,7 +29,6 @@ namespace LedItBe.Core.Animations
             var devEnum = new MMDeviceEnumerator();
             _audioDevice = devEnum.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             _maxPeak = _device.Infos.LedCount;
-            _maxPeak = 360;
         }
 
         protected override void ProcessFrame(Frame frame)
