@@ -64,10 +64,15 @@ namespace LedItBe.CLI
 
             var frame = Frame.Create(_device.Infos.LedCount, _device.Infos.LedProfile);
             await _device.ToDirectMode();
-            _device.SendFrame(frame);
-            _waiter.WaitOne(5000);
 
-            await _device.ToInitialMode();
+            for(int i = 0; i < frame.Data.Length; i++)
+            {
+                frame.Data[i] = LedColor.White;
+                _device.SendFrame(frame);
+                _waiter.WaitOne(40);
+            }
+
+            await _device.TurnOff();
         }
     }
 }

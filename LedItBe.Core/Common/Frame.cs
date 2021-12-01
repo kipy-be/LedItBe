@@ -11,9 +11,9 @@ namespace LedItBe.Core.Common
         private int _dataSize;
         private int _fragmentCount;
         private int _lastFragmentSize;
-
         private LedProfile _colorMode;
-        private LedColor[] _data;
+
+        public LedColor[] Data { get; private set; }
 
         private Frame(int ledCount, LedProfile colorMode)
         {
@@ -28,11 +28,11 @@ namespace LedItBe.Core.Common
 
         private void InitData()
         {
-            _data = new LedColor[_ledCount * _bytesPerLed];
+            Data = new LedColor[_ledCount * _bytesPerLed];
 
-            for (int i = 0; i < _data.Length; i++)
+            for (int i = 0; i < Data.Length; i++)
             {
-                _data[i] = LedColor.Black;
+                Data[i] = LedColor.Black;
             }
         }
 
@@ -56,16 +56,16 @@ namespace LedItBe.Core.Common
                 {
                     if (_bytesPerLed == 4)
                     {
-                        fragment[u] = _data[ledNum].W;
-                        fragment[++u] = _data[ledNum].R;
-                        fragment[++u] = _data[ledNum].G;
-                        fragment[++u] = _data[ledNum].B;
+                        fragment[u] = Data[ledNum].W;
+                        fragment[++u] = Data[ledNum].R;
+                        fragment[++u] = Data[ledNum].G;
+                        fragment[++u] = Data[ledNum].B;
                     }
                     else
                     {
-                        fragment[u] = _data[ledNum].R;
-                        fragment[++u] = _data[ledNum].G;
-                        fragment[++u] = _data[ledNum].B;
+                        fragment[u] = Data[ledNum].R;
+                        fragment[++u] = Data[ledNum].G;
+                        fragment[++u] = Data[ledNum].B;
                     }
                     
                     ledNum++;
