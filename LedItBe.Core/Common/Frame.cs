@@ -23,6 +23,7 @@ namespace LedItBe.Core.Common
             _dataSize = _ledCount * _bytesPerLed;
             _fragmentCount = (_dataSize / FRAGMENT_SIZE) + 1;
             _lastFragmentSize = _dataSize - FRAGMENT_SIZE * (_fragmentCount - 1);
+
             InitData();
         }
 
@@ -33,6 +34,17 @@ namespace LedItBe.Core.Common
             for (int i = 0; i < Data.Length; i++)
             {
                 Data[i] = LedColor.Black;
+            }
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < Data.Length; i++)
+            {
+                Data[i].R = 0;
+                Data[i].G = 0;
+                Data[i].B = 0;
+                Data[i].W = 0;
             }
         }
 
@@ -52,6 +64,7 @@ namespace LedItBe.Core.Common
             for (int i = 0; i < _fragmentCount; i++)
             {
                 fragment = new byte[i == last ? _lastFragmentSize : FRAGMENT_SIZE];
+
                 for (int u = 0; u < fragment.Length; u++)
                 {
                     if (_bytesPerLed == 4)
