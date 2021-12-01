@@ -1,4 +1,5 @@
-﻿using LedItBe.Core.Dto;
+﻿using LedItBe.Core.Common;
+using LedItBe.Core.Dto;
 using System;
 
 namespace LedItBe.Core.Devices
@@ -19,7 +20,7 @@ namespace LedItBe.Core.Devices
         public string Uuid { get; set; }
         public int LedMax { get; set; }
         public int LedCount { get; set; }
-        public string LedProfile { get; set; }
+        public LedProfile LedProfile { get; set; }
         public int Fps { get; set; }
         public double MeasuredFps { get; set; }
         public int MovieCapacity { get; set; }
@@ -53,7 +54,7 @@ namespace LedItBe.Core.Devices
             Uuid = dto.Uuid;
             LedMax = dto.LedMax;
             LedCount = dto.LedCount;
-            LedProfile = dto.LedProfile;
+            LedProfile = dto.LedProfile == "RGBW" ? LedProfile.RGBW : LedProfile.RGB;
             Fps = dto.Fps;
             MeasuredFps = dto.MeasuredFps;
             MovieCapacity = dto.MovieCapacity;

@@ -59,9 +59,12 @@ namespace LedItBe.CLI
             Console.WriteLine("Current led operation mode : {0}", _device.LedOperationMode);
 
             LedColor.SetWhiteColorTemperature(WhiteColorTemperature.K4000);
-            await _device.ToStaticColorMode(LedColor.White);
+            await _device.ToStaticColorMode(LedColor.Red);
             _waiter.WaitOne(5000);
-            await _device.SetColor(LedColor.Red);
+
+            var frame = Frame.Create(_device.Infos.LedCount, _device.Infos.LedProfile);
+            await _device.ToDirectMode();
+            _device.SendFrame(frame);
             _waiter.WaitOne(5000);
 
             await _device.ToInitialMode();

@@ -75,6 +75,7 @@ namespace LedItBe.Core.Devices
 
         public async Task<bool> TurnOff() => await SetMode(LedOperationMode.Off);
         public async Task<bool> ToInitialMode() => await SetMode(_initialOperationMode.HasValue ? _initialOperationMode.Value : LedOperationMode.Off);
+        public async Task<bool> ToDirectMode() => await SetMode(LedOperationMode.Rt);
         public async Task<bool> ToStaticColorMode(LedColor color = null)
         {
             if (color != null)
@@ -83,6 +84,16 @@ namespace LedItBe.Core.Devices
             }
 
             return await SetMode(LedOperationMode.Color);
+        }
+
+        public bool SendFrame(Frame frame)
+        {
+            if (LedOperationMode != LedOperationMode.Rt)
+            {
+                return false;
+            }
+
+            return _udpClient.SendFrame(frame);
         }
 
         private async Task<bool> GetMode()
@@ -112,6 +123,8 @@ namespace LedItBe.Core.Devices
             {
                 return false;
             }
+
+            LedOperationMode = mode;
 
             return true;
         }
