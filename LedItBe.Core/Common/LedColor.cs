@@ -17,9 +17,9 @@ namespace LedItBe.Core.Common
             _whiteColorTemperature = value;
         }
 
-        private LedColor(byte r, byte g, byte b)
+        private LedColor(byte r, byte g, byte b, bool applyTemp = true)
         {
-            if (_whiteColorTemperature == null)
+            if (applyTemp == false || _whiteColorTemperature == null)
             {
                 R = r;
                 G = g;
@@ -59,6 +59,7 @@ namespace LedItBe.Core.Common
         }
 
         public static LedColor FromRgb(byte r, byte g, byte b) => new LedColor(r, g, b);
+        public static LedColor FromExactRgb(byte r, byte g, byte b) => new LedColor(r, g, b, false);
 
         public static LedColor Random => new LedColor((byte)_random.Next(255), (byte)_random.Next(255), (byte)_random.Next(255));
         public static LedColor AliceBlue => new LedColor(0xF0, 0xF8, 0xFF);

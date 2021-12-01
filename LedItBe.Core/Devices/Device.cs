@@ -1,4 +1,5 @@
-﻿using LedItBe.Core.Api.Http;
+﻿using LedItBe.Core.Animations;
+using LedItBe.Core.Api.Http;
 using LedItBe.Core.Api.Udp;
 using LedItBe.Core.Common;
 using LedItBe.Core.Dto;
@@ -15,6 +16,7 @@ namespace LedItBe.Core.Devices
         private DeviceUdpApiClient _udpClient;
         private DateTime _sessionExpirationDate;
         private LedOperationMode? _initialOperationMode = null;
+        private Animation _currentAnimation;
 
         public DeviceInfo Infos { get; private set; }
         public IPAddress Ip { get; private set; }
@@ -86,7 +88,24 @@ namespace LedItBe.Core.Devices
             return await SetMode(LedOperationMode.Color);
         }
 
-        public bool SendFrame(Frame frame)
+        public void StartAudioAnimation(int fps = 25)
+        {
+            _currentAnimation = new AudioAnimation(this, fps);
+            _currentAnimation.Start();
+        }
+
+        public void StopAnimation()
+        {
+            if (_currentAnimation == null)
+            {
+                return;
+            }
+
+            _currentAnimation.Stop();
+            _currentAnimation = null;
+        }
+
+        internal bool SendFrame(Frame frame)
         {
             if (LedOperationMode != LedOperationMode.Rt)
             {

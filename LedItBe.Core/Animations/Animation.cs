@@ -4,7 +4,7 @@ using LedItBe.Core.Utils.Extensions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LedItBe.Core.Animation
+namespace LedItBe.Core.Animations
 {
     internal abstract class Animation
     {
@@ -24,10 +24,14 @@ namespace LedItBe.Core.Animation
             _device = device;
             Fps = fps;
 
-            _frameA = Frame.Create(_device.Infos.LedCount, _device.Infos.LedProfile);
-            _frameB = Frame.Create(_device.Infos.LedCount, _device.Infos.LedProfile);
+            _frameA = Frame.Create(_device.Infos);
+            _frameB = Frame.Create(_device.Infos);
+
+            Init();
         }
 
+        protected virtual void Init()
+        {}
 
         public int Fps
         {
@@ -69,7 +73,7 @@ namespace LedItBe.Core.Animation
 
         public void Dispose() => Stop();
 
-        private async Task Prepare()
+        private async Task<bool> Prepare()
         {
             if (_device.LedOperationMode != LedOperationMode.Color)
             {
@@ -80,19 +84,25 @@ namespace LedItBe.Core.Animation
                 await _device.SetColor(LedColor.Black);
             }
 
-            await _device.ToDirectMode();
+            return await _device.ToDirectMode();
         }
 
         private async void Process()
         {
             try
             {
-                await Prepare();
+                if (!await Prepare())
+                {
+                    return;
+                }
+
                 Frame frame;
                 do
                 {
                     frame = _frameFlip ? _frameA : _frameB;
                     frame.Clear();
+
+                    ProcessFrame(frame);
 
                     _device.SendFrame(frame);
                     _frameFlip = !_frameFlip;

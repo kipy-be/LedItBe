@@ -1,6 +1,5 @@
 ﻿using LedItBe.Core.Common;
 using LedItBe.Core.Devices;
-using LedItBe.Core.IO.Json;
 using System;
 using System.Threading;
 
@@ -28,9 +27,12 @@ namespace LedItBe.CLI
         {
             _device = e.Device;
 
-            Console.WriteLine("Detected device '{0}' ({1})", _device.Name, e.Device.Ip);
-            Console.WriteLine("Infos :");
-            Console.WriteLine(JsonUtils.ToReadableJson(_device.Infos));
+            Console.WriteLine("Detected device '{0}'", _device.Name);
+            Console.WriteLine("\tDevice alias : {0}", _device.Infos.DeviceName);
+            Console.WriteLine("\tIp : {0}", e.Device.Ip);
+            Console.WriteLine("\tLeds : {0} {1}", _device.Infos.LedCount, _device.Infos.LedProfile);
+            Console.WriteLine("\tUptime : {0:dd/MM/yyyy HH:mm:ss}", _device.Infos.Uptime);
+            Console.WriteLine();
 
             InitDevice();
         }
@@ -51,7 +53,7 @@ namespace LedItBe.CLI
         {
             if(!await _device.Connect())
             {
-                Console.WriteLine("could not connect to device");
+                Console.WriteLine("Could not connect to device");
                 return;
             }
 
@@ -59,20 +61,15 @@ namespace LedItBe.CLI
             Console.WriteLine("Current led operation mode : {0}", _device.LedOperationMode);
 
             LedColor.SetWhiteColorTemperature(WhiteColorTemperature.K4000);
-            await _device.ToStaticColorMode(LedColor.Red);
+            Console.WriteLine("Set white temperature to 4000K");
+
+            Console.WriteLine("Testing random color for 5 seconds");
+            await _device.ToStaticColorMode(LedColor.Random);
             _waiter.WaitOne(5000);
 
-            var frame = Frame.Create(_device.Infos.LedCount, _device.Infos.LedProfile);
-            await _device.ToDirectMode();
-
-            for(int i = 0; i < frame.Data.Length; i++)
-            {
-                frame.Data[i] = LedColor.White;
-                _device.SendFrame(frame);
-                _waiter.WaitOne(40);
-            }
-
-            await _device.TurnOff();
+            Console.WriteLine("Starting audio animation");
+            _device.StartAudioAnimation();
+            Console.WriteLine("Listening...");
         }
     }
 }

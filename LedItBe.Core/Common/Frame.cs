@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LedItBe.Core.Devices;
+using System.Collections.Generic;
 
 namespace LedItBe.Core.Common
 {
@@ -15,11 +16,11 @@ namespace LedItBe.Core.Common
 
         public LedColor[] Data { get; private set; }
 
-        private Frame(int ledCount, LedProfile colorMode)
+        private Frame(DeviceInfo deviceInfo)
         {
-            _ledCount = ledCount;
-            _colorMode = colorMode;
-            _bytesPerLed = _colorMode == LedProfile.RGB ? 3 : 4;
+            _ledCount = deviceInfo.LedCount;
+            _colorMode = deviceInfo.LedProfile;
+            _bytesPerLed = deviceInfo.BytesPerLed;
             _dataSize = _ledCount * _bytesPerLed;
             _fragmentCount = (_dataSize / FRAGMENT_SIZE) + 1;
             _lastFragmentSize = _dataSize - FRAGMENT_SIZE * (_fragmentCount - 1);
@@ -48,9 +49,9 @@ namespace LedItBe.Core.Common
             }
         }
 
-        public static Frame Create(int ledCount, LedProfile colorMode)
+        public static Frame Create(DeviceInfo deviceInfo)
         {
-            return new Frame(ledCount, colorMode);
+            return new Frame(deviceInfo);
         }
 
         internal List<byte[]> ToFragments()
