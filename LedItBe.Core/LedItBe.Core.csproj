@@ -9,4 +9,8 @@
     <FileVersion>0.0.1</FileVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NAudio.Wasapi" Version="2.0.0" />
+  </ItemGroup>
+
 </Project>

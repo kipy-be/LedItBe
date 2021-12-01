@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LedItBe.CLI", "LedItBe.CLI\LedItBe.CLI.csproj", "{DFA8BDAA-13D2-415B-9411-9453A0C66CAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LedItBe.Core", "LedItBe.Core\LedItBe.Core.csproj", "{3A04B159-5D24-4F12-8D75-925B38178B84}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LedItBe.Core", "LedItBe.Core\LedItBe.Core.csproj", "{3A04B159-5D24-4F12-8D75-925B38178B84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
