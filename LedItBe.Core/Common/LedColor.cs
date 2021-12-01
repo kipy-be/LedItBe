@@ -5,6 +5,7 @@ namespace LedItBe.Core.Common
     public class LedColor
     {
         private static WhiteColorTemperature _whiteColorTemperature;
+        private static Random _random = new Random();
 
         public byte R { get; set; }
         public byte G { get; set; }
@@ -44,8 +45,22 @@ namespace LedItBe.Core.Common
             B = (byte)(b - minW * _whiteColorTemperature.B / 255);
         }
 
+        public void SetColor(byte r, byte g, byte b)
+        {
+            RgbToRgbw(r, g, b);
+        }
+
+        public void SetColor(LedColor color)
+        {
+            R = color.R;
+            G = color.G;
+            B = color.B;
+            W = color.W;
+        }
+
         public static LedColor FromRgb(byte r, byte g, byte b) => new LedColor(r, g, b);
 
+        public static LedColor Random => new LedColor((byte)_random.Next(255), (byte)_random.Next(255), (byte)_random.Next(255));
         public static LedColor AliceBlue => new LedColor(0xF0, 0xF8, 0xFF);
         public static LedColor AntiqueWhite => new LedColor(0xFA, 0xEB, 0xD7);
         public static LedColor Aqua => new LedColor(0x0, 0xFF, 0xFF);
